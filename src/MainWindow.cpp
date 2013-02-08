@@ -5,7 +5,6 @@ MainWindow::MainWindow()
 {
   _ui = new Ui::MainWindow;
   _ui->setupUi(this);
-  generateRandomVector(10);
   QObject::connect(_ui->drawButton, SIGNAL(clicked()), _ui->list, SLOT(clear()));
   QObject::connect(_ui->drawButton, SIGNAL(clicked()), this, SLOT(drawButtonClicked()));
   QObject::connect(this, SIGNAL(vectorSize(int)), this, SLOT(generateNewRandomVector(int)));
