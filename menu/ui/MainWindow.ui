@@ -15,20 +15,6 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="4" column="0">
-     <widget class="QPushButton" name="drawButton">
-      <property name="text">
-       <string>Draw</string>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="1">
-     <widget class="QPushButton" name="sortButton">
-      <property name="text">
-       <string>Sort</string>
-      </property>
-     </widget>
-    </item>
     <item row="5" column="0">
      <widget class="QPushButton" name="resetButton">
       <property name="text">
@@ -43,39 +29,18 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
-     <widget class="QFrame" name="frame_2">
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+    <item row="5" column="1">
+     <widget class="QPushButton" name="sortButton">
+      <property name="text">
+       <string>Sort</string>
       </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QPushButton" name="drawButton">
+      <property name="text">
+       <string>Draw</string>
       </property>
-      <layout class="QGridLayout" name="gridLayout_4">
-       <item row="0" column="0">
-        <widget class="QGroupBox" name="groupBox_2">
-         <property name="title">
-          <string>Number of elements</string>
-         </property>
-         <widget class="QDoubleSpinBox" name="stepButton">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>60</y>
-            <width>361</width>
-            <height>27</height>
-           </rect>
-          </property>
-          <property name="decimals">
-           <number>0</number>
-          </property>
-          <property name="maximum">
-           <double>50.000000000000000</double>
-          </property>
-         </widget>
-        </widget>
-       </item>
-      </layout>
      </widget>
     </item>
     <item row="2" column="0">
@@ -134,6 +99,40 @@
     </item>
     <item row="3" column="1">
      <widget class="QLineEdit" name="list"/>
+    </item>
+    <item row="2" column="1">
+     <widget class="QFrame" name="frame_2">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Number of elements</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0">
+           <widget class="QDoubleSpinBox" name="stepButton">
+            <property name="decimals">
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <double>50.000000000000000</double>
+            </property>
+            <property name="value">
+             <double>5.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </item>
    </layout>
   </widget>
