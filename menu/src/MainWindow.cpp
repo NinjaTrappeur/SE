@@ -44,3 +44,4 @@ void MainWindow::drawButtonClicked()
 {
   emit vectorSize(_ui->stepButton->value());
 }
+

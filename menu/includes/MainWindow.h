@@ -13,7 +13,6 @@ private:
   Ui::MainWindow* _ui;
   QVector<unsigned int> _vector;
   
-  
 public:
   MainWindow();
   ~MainWindow();

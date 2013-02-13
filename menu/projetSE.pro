@@ -5,5 +5,5 @@ INCLUDEPATH += . includes
 
 # Input
 HEADERS += includes/MainWindow.h includes/Random.h
-FORMS += ui/MainWindow.ui ui/Process.ui
+FORMS += ui/MainWindow.ui
 SOURCES += src/main.cpp src/MainWindow.cpp src/Random.cpp
