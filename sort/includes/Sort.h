@@ -1,6 +1,7 @@
 #ifndef SORT
 #define SORT
 #include <QMainWindow>
+#include <QVector>
 #include <unistd.h>
 #include "ui_Process.h"
 
@@ -12,7 +13,8 @@ private:
   QVector<unsigned int> _inputVector;  
   Ui::Process* _ui;
   int _fd;
-
+  void _saveQVectorToPipe(int fd, QVector<unsigned int>& vector);
+  QVector<unsigned int> _readQVectorFromPipe(int fd);
 public:
   Sort(int fd);
   ~Sort();

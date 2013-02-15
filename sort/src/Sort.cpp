@@ -1,6 +1,7 @@
 #include "Sort.h"
 #include <iostream>
 #include <cstdio>
+#include <unistd.h>
 
 Sort::Sort(int fd):_fd(fd)
 {
@@ -35,4 +36,27 @@ pid_t Sort::callChildren(int fd)
     default:
       return pid;
     }
+}
+
+void _saveQVectorToPipe(int fd, QVector<unsigned int>& vector)
+{
+  unsigned int data;
+  for(int i=0;i<vector.size();i++)
+    {
+      data=vector[i];
+      if(write(fd, &data, sizeof(unsigned int) < sizeof(unsigned int)))
+	{
+	  std::cerr<<"Impossible d'écrire dans le pipe"<<std::endl;
+	  exit(-1);
+	}
+    }
+}
+
+QVector<unsigned int> _readQVectorFromPipe(int fd)
+{
+  QVector<unsigned int> vector;
+  unsigned int data;
+  while(read(fd,&data,sizeof(int)) !=0)
+    vector.append(data);
+  return vector;
 }
