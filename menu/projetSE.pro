@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = MultiProcessSort
+TARGET = ../MultiProcessSort
 DEPENDPATH += . includes src ui
 INCLUDEPATH += . includes
 

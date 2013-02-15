@@ -12,6 +12,9 @@ class MainWindow: public QMainWindow
 private:
   Ui::MainWindow* _ui;
   QVector<unsigned int> _vector;
+  pid_t _callChild(int fdRead, int fdWrite);
+  void _saveQVectorToPipe(int fd, QVector<unsigned int>& vector);
+  void _createPipe(int fd[]);
   
 public:
   MainWindow();
@@ -22,6 +25,7 @@ public:
 public slots:
   void generateNewRandomVector(int size);
   void drawButtonClicked();
+  void launchSort();
 
 signals:
   void vectorSize(int size);

@@ -12,14 +12,15 @@ class Sort: public QMainWindow
 private:
   QVector<unsigned int> _inputVector;  
   Ui::Process* _ui;
-  int _fd;
+  int _fdRead;
+  int _fdWrite;
   void _saveQVectorToPipe(int fd, QVector<unsigned int>& vector);
   QVector<unsigned int> _readQVectorFromPipe(int fd);
 public:
-  Sort(int fd);
+  Sort(int fdRead, int fdWrite);
   ~Sort();
   void splitVector(QVector<unsigned int>& _splittedVector1, QVector<unsigned int>& _splittedVector2);
-  pid_t callChildren(int fd);
+  pid_t callChild(int fd);
 };
 
 #endif

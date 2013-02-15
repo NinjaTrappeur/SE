@@ -6,16 +6,18 @@
 int main(int argc, char** argv)
 {
   QApplication app(argc, argv);
-  if(argc<2){
-    std::cerr<<"Sort a besoin d'un file descriptor passé en paramètre pour pouvoir être exécuté."<<std::endl;
+  //On teste si les deux FD sont bien en paramètres
+  if(argc<3){
+    std::cerr<<"Sort a besoin de deux file descriptor passé en paramètre pour pouvoir être exécuté."<<std::endl;
     return(-1);
   }
   else{
-    int fd = atoi(argv[1]);
-    Sort* sort = new Sort(fd);
-    
+    //On convertit les deux FD en int
+    int fdRead = atoi(argv[1]);
+    int fdWrite = atoi(argv[2]);
+
+    Sort* sort = new Sort(fdRead, fdWrite);    
     sort->show();
-    
     return app.exec();
   }
 }

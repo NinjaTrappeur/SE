@@ -3,10 +3,11 @@
 #include <cstdio>
 #include <unistd.h>
 
-Sort::Sort(int fd):_fd(fd)
+Sort::Sort(int fdRead, int fdWrite):_fdRead(fdRead), _fdWrite(fdWrite)
 {
   _ui = new Ui::Process;
   _ui->setupUi(this);
+  _inputVector=_readQVectorFromPipe(fdRead);
 }
 
 Sort::~Sort()
@@ -21,7 +22,7 @@ void Sort::splitVector(QVector<unsigned int>& splittedVector1, QVector<unsigned 
   splittedVector2= _inputVector.mid(middle, _inputVector.size()-1);
 }
 
-pid_t Sort::callChildren(int fd)
+pid_t Sort::callChild(int fd)
 {
   pid_t pid;
   switch (pid=fork())
@@ -32,13 +33,13 @@ pid_t Sort::callChildren(int fd)
     case 0:
       char fdC[100];
       sprintf(fdC, "%d", fd);
-      execlp("sort", fdC, (char*)NULL);
+      execlp("./Sort", fdC, (char*)NULL);
     default:
       return pid;
     }
 }
 
-void _saveQVectorToPipe(int fd, QVector<unsigned int>& vector)
+void Sort::_saveQVectorToPipe(int fd, QVector<unsigned int>& vector)
 {
   unsigned int data;
   for(int i=0;i<vector.size();i++)
@@ -50,9 +51,10 @@ void _saveQVectorToPipe(int fd, QVector<unsigned int>& vector)
 	  exit(-1);
 	}
     }
+  ::close(fd);
 }
 
-QVector<unsigned int> _readQVectorFromPipe(int fd)
+QVector<unsigned int> Sort::_readQVectorFromPipe(int fd)
 {
   QVector<unsigned int> vector;
   unsigned int data;

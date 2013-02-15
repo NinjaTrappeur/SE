@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = 
+TARGET = ../Sort
 DEPENDPATH += . includes src ui
 INCLUDEPATH += . includes
 
