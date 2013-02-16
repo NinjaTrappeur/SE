@@ -16,6 +16,7 @@ private:
   int _fdWrite;
   void _saveQVectorToPipe(int fd, QVector<unsigned int>& vector);
   QVector<unsigned int> _readQVectorFromPipe(int fd);
+  QString _vectorString();
 public:
   Sort(int fdRead, int fdWrite);
   ~Sort();

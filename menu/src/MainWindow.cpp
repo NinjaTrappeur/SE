@@ -83,13 +83,13 @@ void MainWindow::_saveQVectorToPipe(int fd, QVector<unsigned int>& vector)
   for(int i=0;i<vector.size();i++)
     {
       data=vector[i];
-      if(write(fd, &data, sizeof(unsigned int) < sizeof(unsigned int)))
-	{
+      if(write(fd, &data, sizeof(unsigned int)) < sizeof(unsigned int))
+   	{
 	  std::cerr<<"Impossible d'écrire dans le pipe"<<std::endl;
 	  exit(-1);
 	}
     }
-::close(fd);
+  ::close(fd);
 }
 
 void MainWindow::_createPipe(int fd[])
