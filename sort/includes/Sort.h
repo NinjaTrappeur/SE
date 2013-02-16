@@ -14,6 +14,7 @@ private:
   Ui::Process* _ui;
   int _fdRead;
   int _fdWrite;
+  int _pid;
   void _saveQVectorToPipe(int fd, QVector<unsigned int>& vector);
   QVector<unsigned int> _readQVectorFromPipe(int fd);
   QString _vectorString();

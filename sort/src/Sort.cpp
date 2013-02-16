@@ -3,12 +3,13 @@
 #include <cstdio>
 #include <unistd.h>
 
-Sort::Sort(int fdRead, int fdWrite):_fdRead(fdRead), _fdWrite(fdWrite)
+Sort::Sort(int fdRead, int fdWrite):_fdRead(fdRead), _fdWrite(fdWrite), _pid(getpid())
 {
   _ui = new Ui::Process;
   _ui->setupUi(this);
   _inputVector=_readQVectorFromPipe(fdRead);
   _ui->entryListLabel->setText(_vectorString());
+  _ui->pidLabel->setText("PID: " + QString::number(_pid));
 }
 
 Sort::~Sort()
