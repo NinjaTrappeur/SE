@@ -22,7 +22,7 @@ void Sort::splitVector(QVector<unsigned int>& splittedVector1, QVector<unsigned 
   splittedVector2= _inputVector.mid(middle, _inputVector.size()-1);
 }
 
-pid_t Sort::callChild(int fd)
+pid_t Sort::callChild(int fdRead, int fdWrite)
 {
   pid_t pid;
   switch (pid=fork())
@@ -31,9 +31,10 @@ pid_t Sort::callChild(int fd)
       std::cerr<<"Impossible de forker"<<std::endl;
       exit(-1);
     case 0:
-      char fdC[100];
-      sprintf(fdC, "%d", fd);
-      execlp("./Sort", fdC, (char*)NULL);
+      char fdCRead[100], fdCWrite[100] ;
+      sprintf(fdCRead, "%d", fdRead);
+      sprintf(fdCWrite, "%d", fdWrite);
+      execlp("./Sort", "./Sort", fdCRead, fdCWrite, (char*)NULL);
     default:
       return pid;
     }

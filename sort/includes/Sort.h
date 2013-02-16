@@ -20,7 +20,7 @@ public:
   Sort(int fdRead, int fdWrite);
   ~Sort();
   void splitVector(QVector<unsigned int>& _splittedVector1, QVector<unsigned int>& _splittedVector2);
-  pid_t callChild(int fd);
+  pid_t callChild(int fdRead, int fdWrite);
 };
 
 #endif

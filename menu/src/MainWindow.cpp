@@ -71,7 +71,7 @@ pid_t MainWindow::_callChild(int fdRead, int fdWrite)
       char fdCRead[100], fdCWrite[100];
       sprintf(fdCRead, "%d", fdRead);
       sprintf(fdCWrite, "%d", fdWrite);
-      execlp("./Sort", fdCRead, fdWrite, (char*)NULL);
+      execlp("./Sort", "./Sort", fdCRead, fdCWrite, (char*)NULL);
     default:
       return pid;
     }
