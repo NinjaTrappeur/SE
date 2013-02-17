@@ -1,33 +1,30 @@
-#ifndef SORT
-#define SORT
-#include <QMainWindow>
-#include <QVector>
-#include <unistd.h>
+#ifndef SORTENGINE
+#define SORTENGINE
 #include <csignal>
-#include "ui_Process.h"
+#include "SortInterface.h"
 
-class Sort: public QMainWindow
+class SortEngine
 {
-  Q_OBJECT
-
 private:
-  QVector<unsigned int> _inputVector;  
-  Ui::Process* _ui;
+  struct sigaction _action;
+  QVector<unsigned int> _inputVector; 
+  SortInterface* _interface;
   int _fdRead;
   int _fdWrite;
   int _pid;
-  struct sigaction _action;
   void _saveQVectorToPipe(int fd, QVector<unsigned int>& vector);
   QVector<unsigned int> _readQVectorFromPipe(int fd);
-  QString _vectorString();
   void _initSig();
+  void _waitForSigUsr();
+
 public:
-  Sort(int fdRead, int fdWrite);
-  ~Sort();
+  SortEngine(SortInterface* interface, int fdRead, int fdWrite);
   void splitVector(QVector<unsigned int>& _splittedVector1, QVector<unsigned int>& _splittedVector2);
   pid_t callChild(int fdRead, int fdWrite);
+  void process();
   static void sigUsrHandler(int n);
   static bool userInterupt;
+
 };
 
 #endif

@@ -31,7 +31,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_7">
           <item row="0" column="0">
-           <widget class="QLineEdit" name="entryListLabel"/>
+           <widget class="QLineEdit" name="inputList"/>
           </item>
          </layout>
         </widget>
@@ -55,7 +55,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="0" column="0">
-           <widget class="QLineEdit" name="leftSonList"/>
+           <widget class="QLineEdit" name="leftSonVector"/>
           </item>
          </layout>
         </widget>
@@ -79,7 +79,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
           <item row="0" column="0">
-           <widget class="QLineEdit" name="rightSonList"/>
+           <widget class="QLineEdit" name="rightSonVector"/>
           </item>
          </layout>
         </widget>

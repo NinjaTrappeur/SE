@@ -1,7 +1,8 @@
 #include <QApplication>
 #include <cstdlib>
 #include <iostream>
-#include "Sort.h"
+#include "SortInterface.h"
+#include "SortEngine.h"
 
 int main(int argc, char** argv)
 {
@@ -15,8 +16,10 @@ int main(int argc, char** argv)
     //On convertit les deux FD en int
     int fdRead = atoi(argv[1]);
     int fdWrite = atoi(argv[2]);
-    Sort* sort = new Sort(fdRead, fdWrite);  
-    sort->show();
+    SortInterface* sortInterface = new SortInterface();  
+    SortEngine engine(sortInterface, fdRead, fdWrite);
+    sortInterface->show();
+    engine.process();
     return app.exec();
   }
 }

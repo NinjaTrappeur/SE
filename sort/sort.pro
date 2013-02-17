@@ -4,6 +4,6 @@ DEPENDPATH += . includes src ui
 INCLUDEPATH += . includes
 
 # Input
-HEADERS += includes/Sort.h
+HEADERS += includes/SortInterface.h includes/SortEngine.h
 FORMS += ui/Process.ui
-SOURCES += src/Sort.cpp src/main.cpp
+SOURCES += src/SortInterface.cpp src/SortEngine.cpp src/main.cpp
