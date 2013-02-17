@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <unistd.h>
 
+bool Sort::userInterupt=false;
+
 Sort::Sort(int fdRead, int fdWrite):_fdRead(fdRead), _fdWrite(fdWrite), _pid(getpid())
 {
   _ui = new Ui::Process;
@@ -10,6 +12,7 @@ Sort::Sort(int fdRead, int fdWrite):_fdRead(fdRead), _fdWrite(fdWrite), _pid(get
   _inputVector=_readQVectorFromPipe(fdRead);
   _ui->entryListLabel->setText(_vectorString());
   _ui->pidLabel->setText("PID: " + QString::number(_pid));
+  _initSig();
 }
 
 Sort::~Sort()
@@ -78,4 +81,20 @@ QString Sort::_vectorString()
   else
     string="probleme!";
   return string;
+}
+
+void Sort::sigUsrHandler(int n)
+{
+  userInterupt=true;
+}
+
+void Sort::_initSig()
+{
+  _action.sa_handler = Sort::sigUsrHandler;
+  sigemptyset(&_action.sa_mask);
+  if(sigaction(SIGUSR1, &_action, NULL) == -1) 
+    {
+      std::cerr<<"Impossible de gérer sigusr1"<<std::endl;
+      exit(-1);
+    }
 }

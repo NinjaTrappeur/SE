@@ -12,6 +12,8 @@ MainWindow::MainWindow()
   QObject::connect(_ui->drawButton, SIGNAL(clicked()), this, SLOT(drawButtonClicked()));
   QObject::connect(this, SIGNAL(vectorSize(int)), this, SLOT(generateNewRandomVector(int)));
   QObject::connect(_ui->sortButton, SIGNAL(clicked()), this, SLOT(launchSort()));
+  QObject::connect(_ui->stepButton, SIGNAL(clicked()), this, SLOT(sendSigUsr()));
+  _initSig();
 }
 
 MainWindow::~MainWindow()
@@ -46,7 +48,7 @@ void MainWindow::generateNewRandomVector(int size)
 
 void MainWindow::drawButtonClicked()
 {
-  emit vectorSize(_ui->stepButton->value());
+  emit vectorSize(_ui->stepSpinBox->value());
 }
 
 void MainWindow::launchSort()
@@ -96,4 +98,23 @@ void MainWindow::_createPipe(int fd[])
 {
   if(pipe(fd) == -1)
     std::cerr<<"Impossible de créer un pipe!"<<std::endl;
+}
+
+void MainWindow::sendSigUsr()
+{
+  killpg(getpgrp(), SIGUSR1);
+}
+
+void MainWindow::sigUsrHandler(int n)
+{}
+
+void MainWindow::_initSig()
+{
+  _action.sa_handler = MainWindow::sigUsrHandler;
+  sigemptyset(&_action.sa_mask);
+  if(sigaction(SIGUSR1, &_action, NULL) == -1) 
+    {
+      std::cerr<<"Impossible de gérer sigusr1"<<std::endl;
+      exit(-1);
+    }
 }

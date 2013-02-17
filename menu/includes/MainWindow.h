@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include <QVector>
 #include <QString>
+#include <csignal>
 #include "ui_MainWindow.h"
 
 class MainWindow: public QMainWindow
@@ -15,17 +16,21 @@ private:
   pid_t _callChild(int fdRead, int fdWrite);
   void _saveQVectorToPipe(int fd, QVector<unsigned int>& vector);
   void _createPipe(int fd[]);
+  struct sigaction _action;
+  void _initSig();
   
 public:
   MainWindow();
   ~MainWindow();
   void generateRandomVector(int size);
   QString vectorString();
+  static void sigUsrHandler(int n);
 
 public slots:
   void generateNewRandomVector(int size);
   void drawButtonClicked();
   void launchSort();
+  void sendSigUsr();
 
 signals:
   void vectorSize(int size);
