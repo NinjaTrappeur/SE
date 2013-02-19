@@ -4,6 +4,7 @@
 #include "SortInterface.h"
 #include "SortEngine.h"
 
+SortInterface* sortInterface;
 int main(int argc, char** argv)
 {
   QApplication app(argc, argv);
@@ -16,8 +17,8 @@ int main(int argc, char** argv)
     //On convertit les deux FD en int
     int fdRead = atoi(argv[1]);
     int fdWrite = atoi(argv[2]);
-    SortInterface* sortInterface = new SortInterface();  
-    SortEngine engine(sortInterface, fdRead, fdWrite);
+    sortInterface = new SortInterface();  
+    SortEngine engine(fdRead, fdWrite);
     sortInterface->show();
     return app.exec();
   }

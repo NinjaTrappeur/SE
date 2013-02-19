@@ -4,17 +4,17 @@
 #include "SortEngine.h"
 
 
-SortEngine::SortEngine(SortInterface* interface, int fdRead, int fdWrite):_interface(interface), _fdRead(fdRead), _fdWrite(fdWrite), _pid(getpid())
+SortEngine::SortEngine(int fdRead, int fdWrite):_fdRead(fdRead), _fdWrite(fdWrite), _pid(getpid())
 {
-  _interface->setPid(_pid);
+  sortInterface->setPid(_pid);
   _inputVector=_readQVectorFromPipe(fdRead);
-  _interface->setInputVector(_inputVector);
+  sortInterface->setInputVector(_inputVector);
   _initSig();
 }
 
 void SortEngine::sigUsrHandler(int signal)
 {
-  _interface->setOutputVector("SIGUSR1 reçu!");
+  sortInterface->setOutputVector("SIGUSR1 reçu!");
 }
 
 void SortEngine::_initSig()
