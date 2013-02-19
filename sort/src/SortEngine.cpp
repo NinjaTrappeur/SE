@@ -4,8 +4,6 @@
 #include "SortEngine.h"
 
 
-bool SortEngine::userInterupt=false;
-
 SortEngine::SortEngine(SortInterface* interface, int fdRead, int fdWrite):_interface(interface), _fdRead(fdRead), _fdWrite(fdWrite), _pid(getpid())
 {
   _interface->setPid(_pid);
@@ -14,9 +12,9 @@ SortEngine::SortEngine(SortInterface* interface, int fdRead, int fdWrite):_inter
   _initSig();
 }
 
-void SortEngine::sigUsrHandler(int n)
+void SortEngine::sigUsrHandler(int signal)
 {
-  userInterupt=true;
+  _interface->setOutputVector("SIGUSR1 reçu!");
 }
 
 void SortEngine::_initSig()
@@ -28,26 +26,6 @@ void SortEngine::_initSig()
       std::cerr<<"Impossible de gérer sigusr1"<<std::endl;
       exit(-1);
     }
-}
-
-void SortEngine::_waitForSigUsr()
-{
-  sigset_t mask, oldmask;
-  
-  sigemptyset (&mask);
-  sigaddset (&mask, SIGUSR1);
-  
-  sigprocmask (SIG_BLOCK, &mask, &oldmask);
-  while (!userInterupt)
-    sigsuspend (&oldmask);
-  sigprocmask (SIG_UNBLOCK, &mask, NULL);
-  userInterupt=false;
-}
-
-void SortEngine::process()
-{
-  _waitForSigUsr();
-  _interface->setOutputVector("SIGUSER1 received!");
 }
 
 void SortEngine::splitVector(QVector<unsigned int>& splittedVector1, QVector<unsigned int>& splittedVector2)

@@ -19,7 +19,6 @@ int main(int argc, char** argv)
     SortInterface* sortInterface = new SortInterface();  
     SortEngine engine(sortInterface, fdRead, fdWrite);
     sortInterface->show();
-    engine.process();
     return app.exec();
   }
 }
