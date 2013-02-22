@@ -5,7 +5,12 @@
 
 int SortEngine::_child1ResultFd=0;
 int SortEngine::_child2ResultFd=0;
-QVector<unsigned int> SortEngine::_inputVector = QVector<unsigned int>() ;
+int SortEngine::_returnFd=0;
+
+QVector<unsigned int> SortEngine::_inputVector = QVector<unsigned int>();
+QVector<unsigned int> SortEngine::_son1Vector = QVector<unsigned int>(); 
+QVector<unsigned int> SortEngine::_son2Vector = QVector<unsigned int>(); 
+
 int SortEngine::count=0;
 
 SortEngine::SortEngine():_pid(getpid())
@@ -17,14 +22,29 @@ SortEngine::SortEngine():_pid(getpid())
 
 void SortEngine::sigUsrHandler(int signal)
 {
-  switch(SortEngine::count)
+  std::cout<<"size= "<< _inputVector.size()<<std::endl;
+  if(_inputVector.size()==1)
     {
-    case 0:
-      startChildren();
-      count++;
-      wait();
-      wait();
-      break;
+      _saveQVectorToPipe(SortEngine::_returnFd, _inputVector);
+      QApplication::quit();
+    }
+  else
+    {
+      switch(SortEngine::count)
+	{
+	case 0:
+	  startChildren();
+	  count++;
+	  wait();
+	  wait();
+	  break;
+
+	case 1:
+	  _readSonsResults();
+	  _printSonsResults();
+	  count++;
+	  break;
+	}
     }
 }
 
@@ -55,7 +75,7 @@ pid_t SortEngine::callChild(int fdRead, int fdWrite)
       std::cerr<<"Impossible de forker"<<std::endl;
       exit(-1);
     case 0:
-      char fdCRead[100], fdCWrite[100] ;
+      char fdCRead[100], fdCWrite[100];
       sprintf(fdCRead, "%d", fdRead);
       sprintf(fdCWrite, "%d", fdWrite);
       execlp("./Sort", "./Sort", fdCRead, fdCWrite, (char*)NULL);
@@ -110,4 +130,16 @@ void SortEngine::startChildren()
   _saveQVectorToPipe(fdPipeChild2[1], childTwoVector);
   callChild(fdPipeChild1[0],fdChild1Result[1]);
   callChild(fdPipeChild2[0],fdChild2Result[1]);
+}
+
+void SortEngine::_readSonsResults()
+{
+  _son1Vector=_readQVectorFromPipe(_child1ResultFd);
+  _son2Vector=_readQVectorFromPipe(_child2ResultFd);
+}
+
+void SortEngine::_printSonsResults()
+{
+  sortInterface->setRightSonVector(_son1Vector);
+  sortInterface->setLeftSonVector(_son2Vector);
 }

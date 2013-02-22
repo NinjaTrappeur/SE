@@ -19,6 +19,7 @@ int main(int argc, char** argv)
     int fdWrite = atoi(argv[2]);
     sortInterface = new SortInterface(); 
     SortEngine::count=0;
+    SortEngine::_returnFd=fdWrite; 
     SortEngine::_inputVector = SortEngine::_readQVectorFromPipe(fdRead);
     SortEngine engine;
     sortInterface->show();
