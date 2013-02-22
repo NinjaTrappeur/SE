@@ -17,8 +17,10 @@ int main(int argc, char** argv)
     //On convertit les deux FD en int
     int fdRead = atoi(argv[1]);
     int fdWrite = atoi(argv[2]);
-    sortInterface = new SortInterface();  
-    SortEngine engine(fdRead, fdWrite);
+    sortInterface = new SortInterface(); 
+    SortEngine::count=0;
+    SortEngine::_inputVector = SortEngine::_readQVectorFromPipe(fdRead);
+    SortEngine engine;
     sortInterface->show();
     return app.exec();
   }

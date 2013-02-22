@@ -3,18 +3,29 @@
 #include <iostream>
 #include "SortEngine.h"
 
+int SortEngine::_child1ResultFd=0;
+int SortEngine::_child2ResultFd=0;
+QVector<unsigned int> SortEngine::_inputVector = QVector<unsigned int>() ;
+int SortEngine::count=0;
 
-SortEngine::SortEngine(int fdRead, int fdWrite):_fdRead(fdRead), _fdWrite(fdWrite), _pid(getpid())
+SortEngine::SortEngine():_pid(getpid())
 {
   sortInterface->setPid(_pid);
-  _inputVector=_readQVectorFromPipe(fdRead);
-  sortInterface->setInputVector(_inputVector);
+  sortInterface->setInputVector(SortEngine::_inputVector);
   _initSig();
 }
 
 void SortEngine::sigUsrHandler(int signal)
 {
-  sortInterface->setOutputVector("SIGUSR1 reçu!");
+  switch(SortEngine::count)
+    {
+    case 0:
+      startChildren();
+      count++;
+      wait();
+      wait();
+      break;
+    }
 }
 
 void SortEngine::_initSig()
@@ -28,10 +39,10 @@ void SortEngine::_initSig()
     }
 }
 
-void SortEngine::splitVector(QVector<unsigned int>& splittedVector1, QVector<unsigned int>& splittedVector2)
+void SortEngine::_splitVector(QVector<unsigned int> _inputVector, QVector<unsigned int>& splittedVector1, QVector<unsigned int>& splittedVector2)
 {
   int middle = _inputVector.size()/2; // Le type int tronque les chiffres apres la virgule.
-  splittedVector1= _inputVector.mid(0,middle-1);
+  splittedVector1= _inputVector.mid(0,middle);
   splittedVector2= _inputVector.mid(middle, _inputVector.size()-1);
 }
 
@@ -77,3 +88,26 @@ QVector<unsigned int> SortEngine::_readQVectorFromPipe(int fd)
   return vector;
 }
 
+void SortEngine::_createPipe(int fd[])
+{
+  if(pipe(fd) == -1)
+    std::cerr<<"Impossible de créer un pipe!"<<std::endl;
+}
+
+void SortEngine::startChildren()
+{
+  QVector<unsigned int> childOneVector, childTwoVector;
+  int fdPipeChild1[2], fdPipeChild2[2], fdChild1Result[2], fdChild2Result[2];
+
+  _createPipe(fdPipeChild1);
+  _createPipe(fdPipeChild2);
+  _createPipe(fdChild1Result);
+  _createPipe(fdChild2Result);
+  _splitVector(_inputVector, childOneVector, childTwoVector);
+  _child1ResultFd=fdChild1Result[0];
+  _child2ResultFd=fdChild2Result[0];
+  _saveQVectorToPipe(fdPipeChild1[1], childOneVector);
+  _saveQVectorToPipe(fdPipeChild2[1], childTwoVector);
+  callChild(fdPipeChild1[0],fdChild1Result[1]);
+  callChild(fdPipeChild2[0],fdChild2Result[1]);
+}
