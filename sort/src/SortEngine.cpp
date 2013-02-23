@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <unistd.h>
 #include <iostream>
+#include <sys/wait.h>
 #include "SortEngine.h"
 
 int SortEngine::_child1ResultFd=0;
@@ -22,7 +23,8 @@ SortEngine::SortEngine():_pid(getpid())
 
 void SortEngine::sigUsrHandler(int signal)
 {
-  std::cout<<"size= "<< _inputVector.size()<<std::endl;
+  int status;
+  std::cout<<"count= "<< count<<std::endl;
   if(_inputVector.size()==1)
     {
       _saveQVectorToPipe(SortEngine::_returnFd, _inputVector);
@@ -35,11 +37,12 @@ void SortEngine::sigUsrHandler(int signal)
 	case 0:
 	  startChildren();
 	  count++;
-	  wait();
-	  wait();
+	  wait(&status);
+	  wait(&status);
 	  break;
 
 	case 1:
+	  std::cout<<"Case 1 exécuté dans pid "<<getpid() <<std::endl;
 	  _readSonsResults();
 	  _printSonsResults();
 	  count++;
