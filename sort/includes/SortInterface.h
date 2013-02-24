@@ -8,12 +8,13 @@
 class SortInterface: public QMainWindow
 {
   Q_OBJECT
-
-private: 
+    
+    private: 
   Ui::Process* _ui;
   QString _vectorString(QVector<unsigned int> inputVector);
 
-public:
+
+ public:
   SortInterface();
   ~SortInterface();
   void setOutputVector(const QString& string);
@@ -25,6 +26,8 @@ public:
   void setLeftSonVector(QVector<unsigned int> vector);
   void setRightSonVector(QString string);
   void setRightSonVector(QVector<unsigned int> vector);
+
+
 };
 
 #endif

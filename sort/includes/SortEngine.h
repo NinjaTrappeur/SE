@@ -1,35 +1,44 @@
 #ifndef SORTENGINE
 #define SORTENGINE
 #include <csignal>
+#include <QSocketNotifier>
+#include <QObject>
 #include "SortInterface.h"
 
-extern SortInterface* sortInterface;
-
-class SortEngine
+class SortEngine : public QObject
 {
+Q_OBJECT
+
 private:
-  struct sigaction _action;
+  QVector<unsigned int> _inputVector; 
+  int _fdRead;
+  int _fdWrite;
   int _pid;
-  void _initSig();
-  void _waitForSigUsr();
+  void _saveQVectorToPipe(int fd, QVector<unsigned int>& vector);
+  QVector<unsigned int> _readQVectorFromPipe(int fd);
+  SortInterface* _interface;
+  int _child1ResultFd;
+  int _child2ResultFd;
+  int _returnFd;
+  QVector<unsigned int> _son1Vector; 
+  QVector<unsigned int> _son2Vector;
+  void _createPipe(int fd[]);
+  void _readSonsResults();
+  void _printSonsResults();
+  static int _sigusrFd[2];
+  QSocketNotifier* _snUsr;
 
 public:
-  SortEngine();
-  static int _child1ResultFd;
-  static int _child2ResultFd;
-  static int _returnFd;
-  static QVector<unsigned int> _inputVector; 
-  static QVector<unsigned int> _son1Vector; 
-  static QVector<unsigned int> _son2Vector; 
-  static int count;
-  static pid_t callChild(int fdRead, int fdWrite);
-  static void sigUsrHandler(int signal);
-  static void startChildren();
-  static void _createPipe(int fd[]);
-  static QVector<unsigned int> _readQVectorFromPipe(int fd);
-  static void _splitVector(QVector<unsigned int> _inputVector, QVector<unsigned int>& _splittedVector1, QVector<unsigned int>& _splittedVector2);
-  static void _saveQVectorToPipe(int fd, QVector<unsigned int>& vector);
-  static void _readSonsResults();
-  static void _printSonsResults();
+  SortEngine(SortInterface* interface, int fdRead, int fdWrite);
+  void splitVector(QVector<unsigned int>& _splittedVector1, QVector<unsigned int>& _splittedVector2);
+  pid_t callChild(int fdRead, int fdWrite);
+  int count;
+  void startChildren();
+  void stepForward();
+  static void usrSignalHandler(int unused);
+
+  public slots:
+  void handleSigUsr();
 };
+
 #endif

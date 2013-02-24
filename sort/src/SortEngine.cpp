@@ -1,68 +1,62 @@
 #include <cstdio>
 #include <unistd.h>
 #include <iostream>
-#include <sys/wait.h>
 #include "SortEngine.h"
+#include <sys/socket.h>
 
-int SortEngine::_child1ResultFd=0;
-int SortEngine::_child2ResultFd=0;
-int SortEngine::_returnFd=0;
+int SortEngine::_sigusrFd[2];
 
-QVector<unsigned int> SortEngine::_inputVector = QVector<unsigned int>();
-QVector<unsigned int> SortEngine::_son1Vector = QVector<unsigned int>(); 
-QVector<unsigned int> SortEngine::_son2Vector = QVector<unsigned int>(); 
-
-int SortEngine::count=0;
-
-SortEngine::SortEngine():_pid(getpid())
+static int setup_unix_signal_handlers()
 {
-  sortInterface->setPid(_pid);
-  sortInterface->setInputVector(SortEngine::_inputVector);
-  _initSig();
-}
-
-void SortEngine::sigUsrHandler(int signal)
-{
-  int status;
-  std::cout<<"count= "<< count<<std::endl;
-  if(_inputVector.size()==1)
-    {
-      _saveQVectorToPipe(SortEngine::_returnFd, _inputVector);
-      QApplication::quit();
-    }
-  else
-    {
-      switch(SortEngine::count)
-	{
-	case 0:
-	  startChildren();
-	  count++;
-	  wait(&status);
-	  wait(&status);
-	  break;
-
-	case 1:
-	  std::cout<<"Case 1 exécuté dans pid "<<getpid() <<std::endl;
-	  _readSonsResults();
-	  _printSonsResults();
-	  count++;
-	  break;
-	}
-    }
-}
-
-void SortEngine::_initSig()
-{
-  _action.sa_handler = SortEngine::sigUsrHandler;
-  sigemptyset(&_action.sa_mask);
-  if(sigaction(SIGUSR1, &_action, NULL) == -1) 
+  struct sigaction usr;
+  
+  usr.sa_handler = SortEngine::usrSignalHandler;
+  sigemptyset(&usr.sa_mask);
+  usr.sa_flags = 0;
+  usr.sa_flags |= SA_RESTART;
+  
+  if (sigaction(SIGUSR1, &usr, 0) == -1)
     {
       std::cerr<<"Impossible de gérer sigusr1"<<std::endl;
       exit(-1);
     }
+  
+  return 0;
 }
 
-void SortEngine::_splitVector(QVector<unsigned int> _inputVector, QVector<unsigned int>& splittedVector1, QVector<unsigned int>& splittedVector2)
+void SortEngine::usrSignalHandler(int unused)
+{
+  char a = 1;
+  ::write(_sigusrFd[0], &a, sizeof(a));
+}
+
+void SortEngine::handleSigUsr()
+{
+  _snUsr->setEnabled(false);
+  char tmp;
+  ::read(_sigusrFd[1], &tmp, sizeof(tmp));
+  
+  stepForward();
+  _snUsr->setEnabled(true);
+}
+
+
+SortEngine::SortEngine(SortInterface* interface, int fdRead, int fdWrite):_interface(interface), _fdRead(fdRead), _fdWrite(fdWrite), _pid(getpid()), count(0)
+{
+  setup_unix_signal_handlers();
+  _interface->setPid(_pid);
+  _inputVector=_readQVectorFromPipe(fdRead);
+  _interface->setInputVector(_inputVector);
+  
+  if (::socketpair(AF_UNIX, SOCK_STREAM, 0, _sigusrFd))
+    qFatal("Couldn't create USR socketpair");
+  
+  _snUsr = new QSocketNotifier(_sigusrFd[1], QSocketNotifier::Read, this);
+  connect(_snUsr, SIGNAL(activated(int)), this, SLOT(handleSigUsr()));
+  
+}
+
+void SortEngine::splitVector(QVector<unsigned int>& splittedVector1, QVector<unsigned int>& splittedVector2)
 {
   int middle = _inputVector.size()/2; // Le type int tronque les chiffres apres la virgule.
   splittedVector1= _inputVector.mid(0,middle);
@@ -78,7 +72,7 @@ pid_t SortEngine::callChild(int fdRead, int fdWrite)
       std::cerr<<"Impossible de forker"<<std::endl;
       exit(-1);
     case 0:
-      char fdCRead[100], fdCWrite[100];
+      char fdCRead[100], fdCWrite[100] ;
       sprintf(fdCRead, "%d", fdRead);
       sprintf(fdCWrite, "%d", fdWrite);
       execlp("./Sort", "./Sort", fdCRead, fdCWrite, (char*)NULL);
@@ -121,12 +115,12 @@ void SortEngine::startChildren()
 {
   QVector<unsigned int> childOneVector, childTwoVector;
   int fdPipeChild1[2], fdPipeChild2[2], fdChild1Result[2], fdChild2Result[2];
-
+  
   _createPipe(fdPipeChild1);
   _createPipe(fdPipeChild2);
   _createPipe(fdChild1Result);
   _createPipe(fdChild2Result);
-  _splitVector(_inputVector, childOneVector, childTwoVector);
+  splitVector(childOneVector, childTwoVector);
   _child1ResultFd=fdChild1Result[0];
   _child2ResultFd=fdChild2Result[0];
   _saveQVectorToPipe(fdPipeChild1[1], childOneVector);
@@ -143,6 +137,36 @@ void SortEngine::_readSonsResults()
 
 void SortEngine::_printSonsResults()
 {
-  sortInterface->setRightSonVector(_son1Vector);
-  sortInterface->setLeftSonVector(_son2Vector);
+  _interface->setRightSonVector(_son1Vector);
+  _interface->setLeftSonVector(_son2Vector);
+}
+
+void SortEngine::stepForward()
+{
+  int status;
+  std::cout<<"count= "<< _count<<std::endl;
+  if(_inputVector.size()==1)
+    {
+      _saveQVectorToPipe(_returnFd, _inputVector);
+      QApplication::quit();
+    }
+  else
+    {
+      switch(_count)
+	{
+	case 0:
+	  startChildren();
+	  _count++;
+	  wait();
+	  wait();
+	  break;
+
+	case 1:
+	  std::cout<<"Case 1 exécuté dans pid "<<getpid() <<std::endl;
+	  _readSonsResults();
+	  _printSonsResults();
+	  _count++;
+	  break;
+	}
+    }
 }
