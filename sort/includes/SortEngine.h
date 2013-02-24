@@ -19,7 +19,6 @@ private:
   QVector<unsigned int> _readQVectorFromPipe(int fd);
   int _child1ResultFd;
   int _child2ResultFd;
-  int _returnFd;
   QVector<unsigned int> _son1Vector; 
   QVector<unsigned int> _son2Vector;
   void _createPipe(int fd[]);

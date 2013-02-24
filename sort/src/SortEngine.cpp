@@ -96,7 +96,9 @@ void SortEngine::_saveQVectorToPipe(int fd, QVector<unsigned int>& vector)
 	  exit(-1);
 	}
     }
+  std::cout<<"Vecteur sauvé dans "<< _fdWrite<<std::endl;
   ::close(fd);
+  std::cout<< fd << " est fermé" << std::endl;
 }
 
 QVector<unsigned int> SortEngine::_readQVectorFromPipe(int fd)
@@ -127,6 +129,8 @@ void SortEngine::startChildren()
   _child1ResultFd=fdChild1Result[0];
   _child2ResultFd=fdChild2Result[0];
   _saveQVectorToPipe(fdPipeChild1[1], childOneVector);
+  std::cout<< "fdread: "<< _child1ResultFd<< " fdwrite :" << fdChild1Result[1]<< std::endl;
+  std::cout<< "fdread: "<< _child2ResultFd<< " fdwrite :" << fdChild2Result[1]<< std::endl;
   _saveQVectorToPipe(fdPipeChild2[1], childTwoVector);
   callChild(fdPipeChild1[0],fdChild1Result[1]);
   callChild(fdPipeChild2[0],fdChild2Result[1]);
@@ -134,6 +138,7 @@ void SortEngine::startChildren()
 
 void SortEngine::_readSonsResults()
 {
+  std::cout<<"tentative de lecture dans "<< _child1ResultFd<< std::endl;
   _son1Vector=_readQVectorFromPipe(_child1ResultFd);
   _son2Vector=_readQVectorFromPipe(_child2ResultFd);
 }
@@ -146,10 +151,9 @@ void SortEngine::_printSonsResults()
 
 void SortEngine::stepForward()
 {
-  std::cout<<"count= "<< _count<<std::endl;
   if(_inputVector.size()==1)
     {
-      _saveQVectorToPipe(_returnFd, _inputVector);
+      _saveQVectorToPipe(_fdWrite, _inputVector);
       QApplication::quit();
     }
   else
@@ -164,10 +168,12 @@ void SortEngine::stepForward()
 	  break;
 
 	case 1:
-	  std::cout<<"Case 1 exécuté dans pid "<<getpid() <<std::endl;
+	  _count++;
+	  break;
+	  
+	case 2:
 	  _readSonsResults();
 	  _printSonsResults();
-	  _count++;
 	  break;
 	}
     }
