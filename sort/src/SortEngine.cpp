@@ -157,7 +157,9 @@ void SortEngine::stepForward()
   int status;
   if(_inputVector.size()==1)
     {
-      _saveQVectorToPipe(_fdWrite, _inputVector);
+      _outputVector=_inputVector;
+      _saveQVectorToPipe(_fdWrite, _outputVector);
+      _interface->setOutputVector(_outputVector);
       QApplication::quit();
     }
   else
@@ -166,9 +168,9 @@ void SortEngine::stepForward()
 	{
 	case 0:
 	  startChildren();
+	  wait(&status);
+	  wait(&status);
 	  _count++;
-	  wait(&status);
-	  wait(&status);
 	  break;
 
 	case 1:
@@ -176,6 +178,64 @@ void SortEngine::stepForward()
 	  _printSonsResults();
 	  _count++;
 	  break;
+
+	case 2:
+	  _sortSonsResults();
+	  _interface->setOutputVector(_outputVector);
+	  _saveQVectorToPipe(_fdWrite, _outputVector);
+	  _count++;
+	  break;
+	  
+	case 3:
+	  QApplication::quit();
+	  break;
 	}
+    }
+}
+
+
+void SortEngine::_sortSonsResults()
+{
+  _outputVector.clear();
+
+  //On entrelace les vecteurs
+  
+  while(_son1Vector.size()>0 && _son2Vector.size()>0)
+    {
+      if(_son1Vector.front() <  _son2Vector.front())
+	{
+	  _outputVector.push_back(_son1Vector.front());
+	  _son1Vector.erase(_son1Vector.begin());
+	}
+      else if (_son1Vector.front() == _son2Vector.front())
+	{
+	  _outputVector.push_back(_son1Vector.front());
+	  _outputVector.push_back(_son2Vector.front());
+	  
+	  _son1Vector.erase(_son1Vector.begin());
+	  _son2Vector.erase(_son2Vector.begin());
+	}
+      else
+	{
+	  _outputVector.push_back(_son2Vector.front());
+	  
+	  _son2Vector.erase(_son2Vector.begin());
+	}
+    }
+  
+  //On vide le vecteur restant
+
+  while(_son1Vector.size()>0)
+    {
+      _outputVector.push_back(_son1Vector.front());
+      _son1Vector.erase(_son1Vector.begin());
+      
+    }
+  
+  
+  while(_son2Vector.size()>0)
+    {
+      _outputVector.push_back(_son2Vector.front());
+      _son2Vector.erase(_son2Vector.begin());
     }
 }

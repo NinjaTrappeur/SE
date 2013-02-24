@@ -11,6 +11,7 @@ Q_OBJECT
 
 private:
   QVector<unsigned int> _inputVector; 
+  QVector<unsigned int> _outputVector;
   SortInterface* _interface;
   int _fdReadSon1[2];
   int _fdReadSon2[2];
@@ -31,6 +32,7 @@ private:
   static int _sigusrFd[2];
   QSocketNotifier* _snUsr;
   int _count;
+  void _sortSonsResults();
 
 public:
   SortEngine(SortInterface* interface, int fdRead, int fdWrite);
