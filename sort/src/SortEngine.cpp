@@ -3,6 +3,8 @@
 #include <iostream>
 #include "SortEngine.h"
 #include <sys/socket.h>
+#include <sys/wait.h>
+
 
 int SortEngine::_sigusrFd[2];
 
@@ -151,6 +153,7 @@ void SortEngine::_printSonsResults()
 
 void SortEngine::stepForward()
 {
+  int status;
   if(_inputVector.size()==1)
     {
       _saveQVectorToPipe(_fdWrite, _inputVector);
@@ -163,8 +166,8 @@ void SortEngine::stepForward()
 	case 0:
 	  startChildren();
 	  _count++;
-	  wait();
-	  wait();
+	  wait(&status);
+	  wait(&status);
 	  break;
 
 	case 1:
