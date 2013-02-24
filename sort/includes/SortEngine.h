@@ -12,6 +12,10 @@ Q_OBJECT
 private:
   QVector<unsigned int> _inputVector; 
   SortInterface* _interface;
+  int _fdReadSon1[2];
+  int _fdReadSon2[2];
+  int _fdWriteSon1[2];
+  int _fdWriteSon2[2];
   int _fdRead;
   int _fdWrite;
   int _pid;
@@ -31,7 +35,7 @@ private:
 public:
   SortEngine(SortInterface* interface, int fdRead, int fdWrite);
   void splitVector(QVector<unsigned int>& _splittedVector1, QVector<unsigned int>& _splittedVector2);
-  pid_t callChild(int fdRead, int fdWrite);
+  pid_t callChild(int fdRead[], int fdWrite[]);
   void startChildren();
   void stepForward();
   static void usrSignalHandler(int unused);
