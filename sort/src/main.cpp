@@ -16,8 +16,13 @@ int main(int argc, char** argv)
   else{
     //On convertit les deux FD en int
     int fdRead = atoi(argv[1]);
-    int fdWrite = atoi(argv[2]);
-    SortInterface* sortInterface = new SortInterface();  
+    int fdWrite;
+    QString write(argv[2]);
+    SortInterface* sortInterface = new SortInterface();
+    if(write == "terminal")
+      fdWrite=-1;
+    else
+      fdWrite = atoi(argv[2]);
     SortEngine engine(sortInterface, fdRead, fdWrite);
     sortInterface->show();
     return app.exec();

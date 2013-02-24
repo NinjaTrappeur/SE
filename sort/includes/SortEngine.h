@@ -32,6 +32,7 @@ private:
   static int _sigusrFd[2];
   QSocketNotifier* _snUsr;
   int _count;
+  bool _final;
   void _sortSonsResults();
 
 public:

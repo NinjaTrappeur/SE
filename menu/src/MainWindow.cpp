@@ -54,28 +54,34 @@ void MainWindow::drawButtonClicked()
 void MainWindow::launchSort()
 {
   int fdRead[2];
-  int fdWrite[2];
   _createPipe(fdRead);
   _saveQVectorToPipe(fdRead[1], _vector);
-  _createPipe(fdWrite);
-  _callChild(fdRead[0],fdWrite[1]);
+  _callChild(fdRead);
 }
 
-pid_t MainWindow::_callChild(int fdRead, int fdWrite)
+pid_t MainWindow::_callChild(int fdRead[])
 {
   pid_t pid;
-  switch (pid=fork())
+  switch(pid=fork())
     {
     case -1:
-      std::cerr<<"Impossible de forker"<<std::endl;
-      exit(-1);
+      {
+	std::cerr<<"Impossible de forker"<<std::endl;
+	exit(-1);
+      }
     case 0:
-      char fdCRead[100], fdCWrite[100];
-      sprintf(fdCRead, "%d", fdRead);
-      sprintf(fdCWrite, "%d", fdWrite);
-      execlp("./Sort", "./Sort", fdCRead, fdCWrite, (char*)NULL);
+      {
+	::close(fdRead[1]);
+	char fdCRead[100];
+	QString fdCWrite("terminal");
+	sprintf(fdCRead, "%d", fdRead[0]);
+	execlp("./Sort", "./Sort", fdCRead, fdCWrite.toStdString().c_str(), (char*)NULL);
+      }
     default:
-      return pid;
+      {
+	::close(fdRead[0]);
+	return pid;
+      }
     }
 }
 

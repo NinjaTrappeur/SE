@@ -8,6 +8,7 @@
 
 int SortEngine::_sigusrFd[2];
 
+
 static int setup_unix_signal_handlers()
 {
   struct sigaction usr;
@@ -24,6 +25,22 @@ static int setup_unix_signal_handlers()
     }
   
   return 0;
+}
+
+SortEngine::SortEngine(SortInterface* interface, int fdRead, int fdWrite):_interface(interface), _fdRead(fdRead), _fdWrite(fdWrite), _pid(getpid()), _count(0), _final(false)
+{
+  setup_unix_signal_handlers();
+  _interface->setPid(_pid);
+  _inputVector=_readQVectorFromPipe(fdRead);
+  _interface->setInputVector(_inputVector);
+  if(fdWrite==-1)
+    _final=true;
+  if (::socketpair(AF_UNIX, SOCK_STREAM, 0, _sigusrFd))
+    qFatal("Couldn't create USR socketpair");
+  
+  _snUsr = new QSocketNotifier(_sigusrFd[1], QSocketNotifier::Read, this);
+  connect(_snUsr, SIGNAL(activated(int)), this, SLOT(handleSigUsr()));
+  
 }
 
 void SortEngine::usrSignalHandler(int unused)
@@ -43,22 +60,6 @@ void SortEngine::handleSigUsr()
     std::cerr<<"Write error"<<std::endl;  
   stepForward();
   _snUsr->setEnabled(true);
-}
-
-
-SortEngine::SortEngine(SortInterface* interface, int fdRead, int fdWrite):_interface(interface), _fdRead(fdRead), _fdWrite(fdWrite), _pid(getpid()), _count(0)
-{
-  setup_unix_signal_handlers();
-  _interface->setPid(_pid);
-  _inputVector=_readQVectorFromPipe(fdRead);
-  _interface->setInputVector(_inputVector);
-  
-  if (::socketpair(AF_UNIX, SOCK_STREAM, 0, _sigusrFd))
-    qFatal("Couldn't create USR socketpair");
-  
-  _snUsr = new QSocketNotifier(_sigusrFd[1], QSocketNotifier::Read, this);
-  connect(_snUsr, SIGNAL(activated(int)), this, SLOT(handleSigUsr()));
-  
 }
 
 void SortEngine::splitVector(QVector<unsigned int>& splittedVector1, QVector<unsigned int>& splittedVector2)
@@ -182,8 +183,13 @@ void SortEngine::stepForward()
 	case 2:
 	  _sortSonsResults();
 	  _interface->setOutputVector(_outputVector);
-	  _saveQVectorToPipe(_fdWrite, _outputVector);
-	  _count++;
+	  if(!_final)
+	    {
+	      _saveQVectorToPipe(_fdWrite, _outputVector);
+	      _count++;
+	    }
+	  else
+	    _count=4;
 	  break;
 	  
 	case 3:

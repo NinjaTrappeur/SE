@@ -13,7 +13,7 @@ class MainWindow: public QMainWindow
 private:
   Ui::MainWindow* _ui;
   QVector<unsigned int> _vector;
-  pid_t _callChild(int fdRead, int fdWrite);
+  pid_t _callChild(int fdWrite[]);
   void _saveQVectorToPipe(int fd, QVector<unsigned int>& vector);
   void _createPipe(int fd[]);
   struct sigaction _action;
