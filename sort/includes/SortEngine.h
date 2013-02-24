@@ -11,12 +11,12 @@ Q_OBJECT
 
 private:
   QVector<unsigned int> _inputVector; 
+  SortInterface* _interface;
   int _fdRead;
   int _fdWrite;
   int _pid;
   void _saveQVectorToPipe(int fd, QVector<unsigned int>& vector);
   QVector<unsigned int> _readQVectorFromPipe(int fd);
-  SortInterface* _interface;
   int _child1ResultFd;
   int _child2ResultFd;
   int _returnFd;
@@ -27,12 +27,12 @@ private:
   void _printSonsResults();
   static int _sigusrFd[2];
   QSocketNotifier* _snUsr;
+  int _count;
 
 public:
   SortEngine(SortInterface* interface, int fdRead, int fdWrite);
   void splitVector(QVector<unsigned int>& _splittedVector1, QVector<unsigned int>& _splittedVector2);
   pid_t callChild(int fdRead, int fdWrite);
-  int count;
   void startChildren();
   void stepForward();
   static void usrSignalHandler(int unused);

@@ -27,21 +27,24 @@ static int setup_unix_signal_handlers()
 void SortEngine::usrSignalHandler(int unused)
 {
   char a = 1;
-  ::write(_sigusrFd[0], &a, sizeof(a));
+  int r = ::write(_sigusrFd[0], &a, sizeof(a));
+  if(r<0)
+    std::cerr<<"Write error"<<std::endl;
 }
 
 void SortEngine::handleSigUsr()
 {
   _snUsr->setEnabled(false);
   char tmp;
-  ::read(_sigusrFd[1], &tmp, sizeof(tmp));
-  
+  int r=::read(_sigusrFd[1], &tmp, sizeof(tmp));
+  if(r<0)
+    std::cerr<<"Write error"<<std::endl;  
   stepForward();
   _snUsr->setEnabled(true);
 }
 
 
-SortEngine::SortEngine(SortInterface* interface, int fdRead, int fdWrite):_interface(interface), _fdRead(fdRead), _fdWrite(fdWrite), _pid(getpid()), count(0)
+SortEngine::SortEngine(SortInterface* interface, int fdRead, int fdWrite):_interface(interface), _fdRead(fdRead), _fdWrite(fdWrite), _pid(getpid()), _count(0)
 {
   setup_unix_signal_handlers();
   _interface->setPid(_pid);
@@ -143,7 +146,6 @@ void SortEngine::_printSonsResults()
 
 void SortEngine::stepForward()
 {
-  int status;
   std::cout<<"count= "<< _count<<std::endl;
   if(_inputVector.size()==1)
     {
